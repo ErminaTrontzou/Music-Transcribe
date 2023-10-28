@@ -12,6 +12,22 @@ class AboutWindow(customtkinter.CTkToplevel):
 
         self.title("About")
 
+        self.about_text = customtkinter.CTkTextbox(self,wrap="word", 
+                                           font=("arial", 15))
+        self.about_text.insert("1.0", 
+                       "  Music Transcribe is a Python-based application developed as part of my bachelor's thesis. "
+                       "With a user-friendly interface, it focuses on the precise recognition of musical notes, "
+                       "distinguishing pitch and duration.\n\n"
+                       "  The application supports sourcing notes from either .mp3 "
+                       "files or the sounds of various musical instruments directly from your mic. Users have the "
+                       "flexibility to add new instruments too.\n\n"
+                       "  Notably, Music Transcribe utilizes Fast Fourier Transform "
+                       "(FFT) for the implementation of note recognition. It efficiently transcribes notes onto a "
+                       "pentagram and allows for the export of these pentagram files, offering a versatile tool for "
+                       "everyone, professional or not.")
+        self.about_text.pack(fill="both", expand=True, padx=10, pady=50)
+
+
 
 
 class App(customtkinter.CTk):
