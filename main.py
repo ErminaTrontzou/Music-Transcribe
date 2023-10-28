@@ -1,8 +1,6 @@
 import tkinter
 import customtkinter
-
-from tkinter import font
-
+from components.instrument_buttons import InstrumentButtons
 
 
 class AboutWindow(customtkinter.CTkToplevel):
@@ -37,11 +35,18 @@ class App(customtkinter.CTk):
 
         #Instrument Choice
         choice = customtkinter.CTkLabel(self, text="Choose an instrument", font=("Roboto", 30))
-        choice.pack(padx=10, pady=30) 
+        choice.pack(padx=10, pady=(40,30)) 
 
         # Copyright Label
         copyright_label = customtkinter.CTkLabel(self, text="Copyright: Ermina Trontzou 2023")
         copyright_label.pack(side="bottom", padx=10, pady=10)
+
+        def create_custom_instrument():
+            # TODO
+            pass
+
+        instrument_buttons_frame = InstrumentButtons(self, create_custom_instrument)
+        instrument_buttons_frame.pack(pady=(40,0))
 
         self.about_button = customtkinter.CTkButton(self, text="About", command=self.open_about)
         self.about_button.pack(side="bottom", padx=20, pady=20)

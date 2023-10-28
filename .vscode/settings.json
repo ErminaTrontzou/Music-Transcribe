@@ -1,5 +1,8 @@
 {
     "cSpell.words": [
         "Roboto"
+    ],
+    "python.analysis.extraPaths": [
+        "./components"
     ]
 }
