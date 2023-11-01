@@ -25,8 +25,7 @@ class InstrumentButtons(customtkinter.CTkFrame):
         self.plus_button.pack(side="left", padx=5)
 
     def on_piano_click(self):
-        # TODO
-        print("Piano button clicked")
+        self.master.controller.open_options_component()
 
     def on_guitar_click(self):
         # TODO
