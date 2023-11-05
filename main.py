@@ -62,6 +62,7 @@ class InputOptions(ctk.CTkFrame):
         options_component = OptionsPageContent(self, self.controller)
         options_component.pack(side="top", fill="x", pady=10)
 
+
 #App
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
