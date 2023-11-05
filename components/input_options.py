@@ -3,8 +3,10 @@ import customtkinter
 
 
 class OptionsPageContent(customtkinter.CTkFrame):
-    def __init__(self, master, *args, **kwargs):
+    def __init__(self, master, controller, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
+
+        self.controller = controller
 
         #Fonts
         tab_font_style = customtkinter.CTkFont(size=25)
@@ -37,7 +39,17 @@ class OptionsPageContent(customtkinter.CTkFrame):
         file_tab_label.pack(fill="both", expand=True)
         mic_tab_label.pack(fill="both", expand=True)
 
+        #Return  button
+        return_button = customtkinter.CTkButton(self, text="Return", command=self.return_to_start)
+        return_button.grid(row=0, column=1,padx=(0,100) , pady=(450,5), sticky="w")
+
         # Configure grid layout so that container will always be in the desired place of the window (padx=100, pady=200)
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
         options_container.grid(columnspan=3, rowspan=3)
+
+       
+
+        
+    def return_to_start(self):
+        self.controller.show_frame("StartPage")

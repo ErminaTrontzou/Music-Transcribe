@@ -27,6 +27,7 @@ class AboutWindow(ctk.CTkToplevel):
         self.about_text.pack(fill="both", expand=True, padx=10, pady=50)
 
 
+#Start Page
 class StartPage(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -52,27 +53,28 @@ class StartPage(ctk.CTkFrame):
         # TODO
         pass
 
-
+#Input Options component 
 class InputOptions(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.controller = controller
 
-        options_component = OptionsPageContent(self)
+        options_component = OptionsPageContent(self, self.controller)
         options_component.pack(side="top", fill="x", pady=10)
 
-
+#App
 class App(ctk.CTk):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        #Application theme and window size
         ctk.set_appearance_mode("System")
         ctk.set_default_color_theme("blue")
         self.geometry("800x600")
 
         
 
-        # Container
+        # Container for frames
         self.container = ctk.CTkFrame(self)
         self.container.pack(side="top", fill="both", expand=True)
         self.container.grid_rowconfigure(0, weight=1)
@@ -92,7 +94,7 @@ class App(ctk.CTk):
         self.show_frame("StartPage")
         
 
-        #About Window
+        #About Window button
         self.about_button = ctk.CTkButton(self, text="About", command=self.open_about)
         self.about_button.pack()
         self.about_window = None
