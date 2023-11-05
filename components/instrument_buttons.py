@@ -7,9 +7,9 @@ class InstrumentButtons(customtkinter.CTkFrame):
 
         # Global configuration for instrument_buttons
         button_config = {
-            "width": 120,
-            "height": 120,
-            "corner_radius": 10,
+            "width": 100,
+            "height": 100,
+            "corner_radius": 30,
             "font": ("Roboto", 30),
             "text_color": "black",
             "hover_color": "light grey"
