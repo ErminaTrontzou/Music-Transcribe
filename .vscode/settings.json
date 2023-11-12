@@ -1,6 +1,11 @@
 {
     "cSpell.words": [
-        "Roboto"
+        "dtype",
+        "figsize",
+        "frombuffer",
+        "pyaudio",
+        "Roboto",
+        "wavefile"
     ],
     "python.analysis.extraPaths": [
         "./components"

@@ -1,8 +1,10 @@
 import tkinter as tk
 import customtkinter
 from tkinter import filedialog
+from . import recorder
 
-
+#TODO:
+# - Clean this file, make the components microphone.py and input_options.py  and then call them here
 class OptionsPageContent(customtkinter.CTkFrame):
     def __init__(self, master, controller, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
@@ -33,10 +35,10 @@ class OptionsPageContent(customtkinter.CTkFrame):
         #Tab Styling
         self.options_tab._segmented_button.configure(font=self.tab_font_style)
 
+        #Music File Tab
         self.file_tab = self.options_tab.add("MP3 File")
         self.file_tab_label = customtkinter.CTkLabel(self.file_tab, text="Choose a file to process", font=self.tab_content_style)
         self.file_tab_label.pack(fill="both", expand=True)
-
 
         self.file_button = customtkinter.CTkButton(self.file_tab, text="Choose File", command=self.choose_file_implementation)
         self.file_button.pack(side="bottom", padx=10, pady=10)
@@ -46,13 +48,30 @@ class OptionsPageContent(customtkinter.CTkFrame):
 
         self.process_button = customtkinter.CTkButton(self.file_tab, text="Start process", state="disabled")
         self.process_button.pack(side="bottom", padx=20, pady=10)
+        #End of Music File Tab
 
+        #Microphone Tab
+        self.rec = recorder.Recorder()
+        self.running = None
 
         self.mic_tab = self.options_tab.add("Microphone")
-        self.mic_tab_label = customtkinter.CTkLabel(self.mic_tab, text="Content of Tab 2", font=self.tab_content_style)
+        self.mic_tab_label = customtkinter.CTkLabel(self.mic_tab, text="Click Start recording to start", font=self.tab_content_style)
         self.mic_tab_label.pack(fill="both", expand=True)
 
-        #Return  button
+        self.button_frame = customtkinter.CTkFrame(self.mic_tab)
+        self.button_frame.pack(side="top", pady=10)
+
+        self.mic_tab_start_button = customtkinter.CTkButton(self.button_frame, text="Start Recording", command=self.start)
+        self.mic_tab_start_button.pack(side="left", padx=10)
+
+        self.mic_tab_stop_button = customtkinter.CTkButton(self.button_frame, text="Stop Recording", command=self.stop, state="disabled")
+        self.mic_tab_stop_button.pack(side="left", padx=10)
+
+        self.mic_tab_process_button = customtkinter.CTkButton(self.button_frame, text="Process File", command=self.process_audio_file ,state="disabled")
+        self.mic_tab_process_button.pack(side="left", padx=10)
+        #End of Microphone Tab
+
+        #Return to Start Page button
         self.return_button = customtkinter.CTkButton(self, text="Return", command= self.return_to_start)
         self.return_button.grid(row=0, column=1,padx=(0,100) , pady=(450,5), sticky="w")
 
@@ -60,12 +79,10 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
         self.options_container.grid(columnspan=3, rowspan=3)
-
-       
-
         
     def return_to_start(self):
         self.controller.show_frame("StartPage")
+
 
     def choose_file_implementation(self):
         musicfile = filedialog.askopenfilename(filetypes=[("MP3 files", "*.mp3 *.wav")])
@@ -73,5 +90,46 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.chosen_file.set(musicfile)
         self.file_button.configure(text="Choose other file")
         self.process_button.configure(state="normal")
+
+    def start(self):
+        global running
+
+        self.mic_tab_start_button.configure(text="Start Recording")
+        if self.running is not None:
+            print('already running')
+            self.mic_tab_label.configure(text="Already recording")
+        else:
+            # Open a new .wav file for recording
+            self.running = self.rec.open('nonblocking.wav', 'wb')
+            self.running.start_recording()
+        self.mic_tab_start_button.configure(state="disabled")
+        self.mic_tab_stop_button.configure(state="normal")
+        self.mic_tab_label.configure(text="Recording...")
+
+    def stop(self):
+        global running
+        if self.running is not None:
+            self.running.stop_recording()
+            # Close the wave file after stopping the recording
+            self.running.wavefile.close()
+
+            self.mic_tab_stop_button.configure(state="disabled")
+            self.mic_tab_process_button.configure(state="normal")
+            self.mic_tab_label.configure(text="Recording stopped. Click Process to make it into a sheet!")
+        else:
+            print('not running')
+            self.mic_tab_label.configure(text="Not recording")
+    
+    def process_audio_file(self):
+        global running
+
+        self.mic_tab_start_button.configure(text="Start new Recording")
+        self.running.plot_waveform()
+        self.running = None
+        self.mic_tab_start_button.configure(state="normal")
+        self.mic_tab_process_button.configure(state="disabled")
+        
+
+    
 
 
