@@ -1,11 +1,16 @@
 {
     "cSpell.words": [
         "dtype",
+        "fftfreq",
+        "fftpack",
         "figsize",
+        "freqs",
         "frombuffer",
         "pyaudio",
+        "pydub",
         "Roboto",
-        "wavefile"
+        "wavefile",
+        "wavfile"
     ],
     "python.analysis.extraPaths": [
         "./components"

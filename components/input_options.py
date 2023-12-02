@@ -1,7 +1,8 @@
 import tkinter as tk
 import customtkinter
 from tkinter import filedialog
-from . import recorder
+from . import recorder, fft
+
 
 #TODO:
 # - Clean this file, make the components microphone.py and input_options.py  and then call them here
@@ -36,6 +37,8 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.options_tab._segmented_button.configure(font=self.tab_font_style)
 
         #Music File Tab
+        self.file_fft = fft.FFT()
+
         self.file_tab = self.options_tab.add("MP3 File")
         self.file_tab_label = customtkinter.CTkLabel(self.file_tab, text="Choose a file to process", font=self.tab_content_style)
         self.file_tab_label.pack(fill="both", expand=True)
@@ -46,7 +49,7 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.chosen_file_name = customtkinter.CTkLabel(self.file_tab, textvariable= self.chosen_file, font=self.chosen_file_name_style, width=15, height=1)
         self.chosen_file_name.pack(fill="both", padx=10, pady=20)
 
-        self.process_button = customtkinter.CTkButton(self.file_tab, text="Start process", state="disabled")
+        self.process_button = customtkinter.CTkButton(self.file_tab, text="Start process", state="disabled", command=lambda: self.file_fft.process(self.chosen_file.get()))
         self.process_button.pack(side="bottom", padx=20, pady=10)
         #End of Music File Tab
 
@@ -85,9 +88,9 @@ class OptionsPageContent(customtkinter.CTkFrame):
 
 
     def choose_file_implementation(self):
-        musicfile = filedialog.askopenfilename(filetypes=[("MP3 files", "*.mp3 *.wav")])
+        music_file = filedialog.askopenfilename(filetypes=[("wav files", " *.wav")])
         self.file_tab_label.configure(text="You chose the file")
-        self.chosen_file.set(musicfile)
+        self.chosen_file.set(music_file)
         self.file_button.configure(text="Choose other file")
         self.process_button.configure(state="normal")
 
@@ -100,10 +103,12 @@ class OptionsPageContent(customtkinter.CTkFrame):
             self.mic_tab_label.configure(text="Already recording")
         else:
             # Open a new .wav file for recording
-            self.running = self.rec.open('nonblocking.wav', 'wb')
+            self.running = self.rec.open('intrument_recording.wav', 'wb')
             self.running.start_recording()
         self.mic_tab_start_button.configure(state="disabled")
         self.mic_tab_stop_button.configure(state="normal")
+        self.mic_tab_process_button.configure(state="disabled")
+
         self.mic_tab_label.configure(text="Recording...")
 
     def stop(self):
@@ -115,6 +120,9 @@ class OptionsPageContent(customtkinter.CTkFrame):
 
             self.mic_tab_stop_button.configure(state="disabled")
             self.mic_tab_process_button.configure(state="normal")
+            self.mic_tab_start_button.configure(state="normal")
+
+            self.mic_tab_start_button.configure(text="Start New Recording")
             self.mic_tab_label.configure(text="Recording stopped. Click Process to make it into a sheet!")
         else:
             print('not running')
@@ -123,7 +131,6 @@ class OptionsPageContent(customtkinter.CTkFrame):
     def process_audio_file(self):
         global running
 
-        self.mic_tab_start_button.configure(text="Start new Recording")
         self.running.plot_waveform()
         self.running = None
         self.mic_tab_start_button.configure(state="normal")
