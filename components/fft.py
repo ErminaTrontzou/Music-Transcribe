@@ -41,4 +41,11 @@ class FFT():
         plt.xlabel('Frequency (Hz)')
         plt.ylabel('Amplitude')
 
+        plt.figure(3)
+        plt.plot(freq_bins, frequencies)
+        plt.title('Log-scaled FFT of Sound File')
+        plt.xlabel('Frequency (Hz)')
+        plt.ylabel('Amplitude')
+        plt.xscale('log') 
+
         plt.show()
