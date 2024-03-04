@@ -52,7 +52,7 @@ class RecordingFile(object):
         self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()
-        return self
+        return self.fname
 
     #Returns a callback function that writes the input data to a wave file.
     def get_callback(self):

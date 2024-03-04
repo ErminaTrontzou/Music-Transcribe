@@ -49,3 +49,5 @@ class FFT():
         plt.xscale('log') 
 
         plt.show()
+
+        

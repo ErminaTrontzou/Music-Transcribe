@@ -12,6 +12,7 @@ class OptionsPageContent(customtkinter.CTkFrame):
 
         self.controller = controller
         self.chosen_file = tk.StringVar()
+        self.recorded_file_path = ""
 
         #Fonts
         self.tab_font_style = customtkinter.CTkFont(size=25)
@@ -70,7 +71,7 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.mic_tab_stop_button = customtkinter.CTkButton(self.button_frame, text="Stop Recording", command=self.stop, state="disabled")
         self.mic_tab_stop_button.pack(side="left", padx=10)
 
-        self.mic_tab_process_button = customtkinter.CTkButton(self.button_frame, text="Process File", command=self.process_audio_file ,state="disabled")
+        self.mic_tab_process_button = customtkinter.CTkButton(self.button_frame, text="Process File", command=lambda: self.process_audio_file(self.recorded_file_path), state="disabled")
         self.mic_tab_process_button.pack(side="left", padx=10)
         #End of Microphone Tab
 
@@ -114,6 +115,7 @@ class OptionsPageContent(customtkinter.CTkFrame):
     def stop(self):
         global running
         if self.running is not None:
+            self.recorded_file_path = self.running.stop_recording()
             self.running.stop_recording()
             # Close the wave file after stopping the recording
             self.running.wavefile.close()
@@ -128,13 +130,13 @@ class OptionsPageContent(customtkinter.CTkFrame):
             print('not running')
             self.mic_tab_label.configure(text="Not recording")
     
-    def process_audio_file(self):
-        global running
-
-        self.running.plot_waveform()
+    def process_audio_file(self, file_path):
+        self.file_fft.process(file_path) 
         self.running = None
         self.mic_tab_start_button.configure(state="normal")
         self.mic_tab_process_button.configure(state="disabled")
+
+
         
 
     
