@@ -1,0 +1,5 @@
+customtkinter==5.2.2
+matplotlib==3.8.3
+numpy==1.26.4
+PyAudio==0.2.14
+scipy==1.12.0
