@@ -2,6 +2,7 @@ import tkinter as tk
 import customtkinter
 from tkinter import filedialog
 from . import recorder, fft
+from tkinter import messagebox
 
 
 #TODO:
@@ -9,6 +10,8 @@ from . import recorder, fft
 class OptionsPageContent(customtkinter.CTkFrame):
     def __init__(self, master, controller, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
+
+        self.file_fft = fft.FFT()
 
         self.controller = controller
         self.chosen_file = tk.StringVar()
@@ -38,8 +41,6 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.options_tab._segmented_button.configure(font=self.tab_font_style)
 
         #Music File Tab
-        self.file_fft = fft.FFT()
-
         self.file_tab = self.options_tab.add("MP3 File")
         self.file_tab_label = customtkinter.CTkLabel(self.file_tab, text="Choose a file to process", font=self.tab_content_style)
         self.file_tab_label.pack(fill="both", expand=True)
@@ -50,9 +51,12 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.chosen_file_name = customtkinter.CTkLabel(self.file_tab, textvariable= self.chosen_file, font=self.chosen_file_name_style, width=15, height=1)
         self.chosen_file_name.pack(fill="both", padx=10, pady=20)
 
-        self.process_button = customtkinter.CTkButton(self.file_tab, text="Start process", state="disabled", command=lambda: self.file_fft.process(self.chosen_file.get()))
+        self.process_button = customtkinter.CTkButton(self.file_tab, text="Start process", state="disabled", command=lambda: self.process_chosen_file(self.chosen_file.get()) )
         self.process_button.pack(side="bottom", padx=20, pady=10)
         #End of Music File Tab
+
+        self.status_message_label = customtkinter.CTkLabel(self.file_tab, text="Ready", font=self.tab_content_style)
+        self.status_message_label.pack(fill="both", expand=True)
 
         #Microphone Tab
         self.rec = recorder.Recorder()
@@ -85,6 +89,9 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.options_container.grid(columnspan=3, rowspan=3)
         
     def return_to_start(self):
+        self.chosen_file.set("")
+        self.chosen_file_name.configure(text="")
+        self.process_button.configure(state="disabled")
         self.controller.show_frame("StartPage")
 
 
@@ -94,6 +101,16 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.chosen_file.set(music_file)
         self.file_button.configure(text="Choose other file")
         self.process_button.configure(state="normal")
+        
+    
+    def process_chosen_file(self, chosen_file):
+        self.process_button.configure(state="disabled")
+        while(self.file_fft.process(chosen_file)):
+            self.status_message_label.configure(text="Processing file...")
+        self.status_message_label.configure(text="File has been processed!")
+        self.process_button.configure(text="Process New File", state="normal")
+        
+        
 
     def start(self):
         global running
@@ -135,6 +152,7 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.running = None
         self.mic_tab_start_button.configure(state="normal")
         self.mic_tab_process_button.configure(state="disabled")
+        
 
 
         
