@@ -3,6 +3,8 @@ import customtkinter
 from tkinter import filedialog
 from . import recorder, fft
 from tkinter import messagebox
+# to make the filename from C:/Users/etrontzo/Music-Transcribe/c-d-e-f-g.wav to c-d-e-f-g.wav
+import os  
 
 
 #TODO:
@@ -101,14 +103,21 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.chosen_file.set(music_file)
         self.file_button.configure(text="Choose other file")
         self.process_button.configure(state="normal")
+        self.status_message_label.configure(text="")
+
         
     
     def process_chosen_file(self, chosen_file):
         self.process_button.configure(state="disabled")
         while(self.file_fft.process(chosen_file)):
             self.status_message_label.configure(text="Processing file...")
-        self.status_message_label.configure(text="File has been processed!")
-        self.process_button.configure(text="Process New File", state="normal")
+        filename_only = os.path.basename(chosen_file)
+        self.status_message_label.configure(text=f"File {filename_only} has been processed!")
+        self.file_tab_label.configure(text="Choose a file to process")
+        self.chosen_file.set("") 
+        self.chosen_file_name.configure(text="")
+        self.file_button.configure(text="Choose another File", command=self.choose_file_implementation)
+        self.process_button.configure(text="Start process", state="disabled")
         
         
 
