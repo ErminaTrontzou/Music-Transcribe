@@ -109,7 +109,7 @@ class OptionsPageContent(customtkinter.CTkFrame):
     
     def process_chosen_file(self, chosen_file):
         self.process_button.configure(state="disabled")
-        while(self.file_fft.process(chosen_file)):
+        while(self.file_fft.process_audio_file(chosen_file)):
             self.status_message_label.configure(text="Processing file...")
         filename_only = os.path.basename(chosen_file)
         self.status_message_label.configure(text=f"File {filename_only} has been processed!")
