@@ -88,7 +88,11 @@ class FFT:
 
         """
         fs, data = wavfile.read(file_path)
-        audio = data.T[0]
+        
+        if len(data.shape) == 1:
+            audio = data
+        else:
+            audio = data.T[0] 
         
         self.frame_step = (fs / self.fps)
         self.fft_window_size = int(fs * self.fft_window_seconds)
@@ -111,7 +115,7 @@ class FFT:
 
             # Detect peaks in the FFT magnitude that likely correspond to musical notes.
             # Peaks are identified based on a minimum height threshold and a minimum distance between peaks.
-            peaks, _ = scipy.signal.find_peaks(fft_magnitude, height=1400.00, distance=int(self.fft_window_size // 4))
+            peaks, _ = scipy.signal.find_peaks(fft_magnitude, height=1500.00, distance=int(self.fft_window_size // 4))
 
 
             # Filter out frequencies below 16.35 Hz or above 7902.13 Hz
@@ -121,9 +125,9 @@ class FFT:
             # but only if the frequency passes the filter.
             for peak in valid_peaks:
                 freq = xf[peak]
-                midi_note = self.freq_to_number(freq)
-                if midi_note is not None:
-                    note_name = self.note_name(midi_note)
+                note = self.freq_to_number(freq)
+                if note is not None:
+                    note_name = self.note_name(note)
                     self.final_notes_array.append((note_name, freq))
 
         print("\n\nProcessing file: ", os.path.basename(file_path), "   (c  d  e  f  g  a  b  )")
