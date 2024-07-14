@@ -2,6 +2,12 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 import scipy.signal
 import os
+from.lilypond_convert import LilyPondConverter
+
+class PlayedNote:
+    def __init__(self, note, duration):
+        self.note = note
+        self.duration = duration
 
 class FFT:
     def __init__(self, fps=5, fft_window_seconds=0.25, freq_min=10, freq_max=1000):
@@ -60,6 +66,13 @@ class FFT:
         self.final_notes_array = []
         energy_list = []
 
+        # Initialize an empty list to hold the notes and their durations
+        notes_info = []
+
+        # For tracking currently playing note and duration
+        current_played_note = PlayedNote(note=None, duration=0)
+        notes = []
+
         for frame_number in range(self.frame_count):
             sample = self.extract_sample(audio, frame_number)
             fft_result = np.fft.rfft(sample * window)
@@ -74,21 +87,30 @@ class FFT:
             avg_energy = np.mean(energy_list)
 
             if frame_energy < avg_energy * 0.5:
-                self.final_notes_array.append("pause")
+                current_note = "pause"
             else:
                 peaks, _ = scipy.signal.find_peaks(fft_magnitude, height=1500.00, distance=int(self.fft_window_size // 4))
                 valid_peaks = [peak for peak in peaks if 16.35 < xf[peak] < 7902.13]
 
                 if len(valid_peaks) == 0:
-                    self.final_notes_array.append("pause")
+                    current_note = "pause"
                 else:
-                    for peak in valid_peaks:
-                        freq = xf[peak]
-                        note = self.freq_to_number(freq)
-                        if note is not None:
-                            note_name = self.note_name(note)
-                            self.final_notes_array.append((note_name, freq))
+                    freq = xf[valid_peaks[0]]  # Take the first valid peak
+                    note_number = self.freq_to_number(freq)
+                    current_note = self.note_name(note_number)
 
-        print("\n\nProcessing file: ", os.path.basename(file_path), "   (c  d  e  f  g  a  b  )")
-        print("Recognized notes:", self.final_notes_array, "\n\n")
+            # Check if the current note is the same as the last noted played
+            if notes and current_note == notes[-1].note:
+                notes[-1].duration += self.fft_window_seconds
+            else:
+                notes.append(PlayedNote(note=current_note, duration=self.fft_window_seconds))
+
+        for note in notes:
+            notes_info.append({"note": note.note, "duration": note.duration})
+
+        print('Notes for : ', os.path.basename(file_path) ,'\n', notes_info)
+
+        converter = LilyPondConverter(notes_info)
+        lilypond_file_name = os.path.splitext(file_path)[0] + ".ly"
+        converter.write_to_file(lilypond_file_name)
 
