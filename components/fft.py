@@ -2,7 +2,7 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 import scipy.signal
 import os
-from.lilypond_convert import LilyPondConverter
+from .lilypond_convert import LilyPondConverter
 
 class PlayedNote:
     def __init__(self, note, duration):
@@ -22,18 +22,20 @@ class FFT:
         self.frame_offset = None
         self.audio_length = None
         self.final_notes_array = []
-        self.energy_threshold = 1e-4  # Initial threshold for detecting silence
-        self.rolling_window_size = 10  # Number of frames for rolling average
+        self.energy_threshold = 1e-4 
+        self.rolling_window_size = 10
 
     def freq_to_number(self, f):
-        return round(69 + 12 * np.log2(f / 440.0))
+        return 12*np.log2(f/27.5) + 9
     
     def number_to_freq(self, n):
-        return 440 * 2.0 ** ((n - 69) / 12.0)
-
+        return 27.5 * 2**((n-9)/12)
+    
     def note_name(self, n):
-        n = int(n)
-        return ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][n % 12] + str(int(n // 12 - 1))
+        n = round(n)
+        note = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][n % 12]
+        octave = str(int(n // 12))
+        return note + octave
 
     def extract_sample(self, audio, frame_number):
         end = frame_number * self.frame_offset
@@ -45,6 +47,20 @@ class FFT:
             return np.concatenate([np.zeros((np.abs(begin)), dtype=float), audio[0:end]])
         else:
             return audio[begin:end]
+        
+    def gcd(self, frequencies):
+        """Calculate GCD among a list of frequencies."""
+        def euclidean_gcd(a, b):
+            """Euclidean algorithm for GCD."""
+            while b != 0:
+                a, b = b, a % b
+            return a
+        
+        int_frequencies = [round(freq * 1e6) for freq in frequencies]
+        gcd_freq = int_frequencies[0]
+        for freq in int_frequencies[1:]:
+            gcd_freq = euclidean_gcd(gcd_freq, freq)
+        return gcd_freq / 1e6  
 
     def process_audio_file(self, file_path):
         fs, data = wavfile.read(file_path)
@@ -56,6 +72,7 @@ class FFT:
         
         self.frame_step = (fs / self.fps)
         self.fft_window_size = int(fs * self.fft_window_seconds)
+        print(f"FFT windows size of {self.fft_window_seconds} sec leads to FFT windows size of {self.fft_window_size} samples")
         self.audio_length = len(audio) / fs
 
         window = 0.5 * (1 - np.cos(np.linspace(0, 2 * np.pi, self.fft_window_size, False)))
@@ -63,13 +80,8 @@ class FFT:
         self.frame_count = int(self.audio_length * self.fps)
         self.frame_offset = int(len(audio) / self.frame_count)
 
-        self.final_notes_array = []
         energy_list = []
-
-        # Initialize an empty list to hold the notes and their durations
         notes_info = []
-
-        # For tracking currently playing note and duration
         current_played_note = PlayedNote(note=None, duration=0)
         notes = []
 
@@ -86,20 +98,45 @@ class FFT:
 
             avg_energy = np.mean(energy_list)
 
-            if frame_energy < avg_energy * 0.5:
+            current_note = None
+            if frame_energy < avg_energy * 0.1:
                 current_note = "pause"
             else:
-                peaks, _ = scipy.signal.find_peaks(fft_magnitude, height=1500.00, distance=int(self.fft_window_size // 4))
+                peaks, properties = scipy.signal.find_peaks(fft_magnitude, height=1500.00, )#distance=int(self.fft_window_size // 4))
                 valid_peaks = [peak for peak in peaks if 16.35 < xf[peak] < 7902.13]
+            
+                # print(valid_peaks)
+                print(xf[valid_peaks])
+                print(properties)
 
                 if len(valid_peaks) == 0:
                     current_note = "pause"
                 else:
-                    freq = xf[valid_peaks[0]]  # Take the first valid peak
-                    note_number = self.freq_to_number(freq)
+                    main_peak_index = np.argmax(properties['peak_heights'])
+                    fundamental_freq = xf[valid_peaks[main_peak_index]]
+
+                    close_harmonics = []
+                    for peak in valid_peaks:
+                        potential_harmonic_freq = xf[peak]
+                        
+                        if potential_harmonic_freq <= fundamental_freq:
+                            continue
+
+                        deviation_from_harmony = potential_harmonic_freq/fundamental_freq - round(potential_harmonic_freq/fundamental_freq)
+                        if abs(deviation_from_harmony) <= 0.02:
+                            theoretical_harmonic = round(potential_harmonic_freq/fundamental_freq)*fundamental_freq
+                            close_harmonics.append(theoretical_harmonic)
+                        # if abs(potential_harmonic_freq - fundamental_freq) <= 0.5 * fundamental_freq:
+                            # close_harmonics.append(potential_harmonic_freq)
+
+                    print(f"for {fundamental_freq} found possible harmonics {close_harmonics}")
+
+                    base_frequency = self.gcd(close_harmonics + [fundamental_freq])
+                    print(f"assuming base frequency {base_frequency}")
+
+                    note_number = self.freq_to_number(base_frequency)
                     current_note = self.note_name(note_number)
 
-            # Check if the current note is the same as the last noted played
             if notes and current_note == notes[-1].note:
                 notes[-1].duration += self.fft_window_seconds
             else:
@@ -113,4 +150,5 @@ class FFT:
         converter = LilyPondConverter(notes_info)
         lilypond_file_name = os.path.splitext(file_path)[0] + ".ly"
         converter.write_to_file(lilypond_file_name)
+        converter.run_lilypond(lilypond_file_name)
 
