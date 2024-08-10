@@ -19,7 +19,7 @@ class FFT:
         self.filter_order = filter_order
         
         self.fft_window_size = None
-        self.energy_threshold = 1e-4 
+        self.energy_threshold = 1e5 
         self.rolling_window_size = 10
 
     def freq_to_number(self, f):
@@ -103,9 +103,9 @@ class FFT:
             avg_energy = np.mean(energy_list)
 
             current_note = None
-            if frame_energy < avg_energy * 0.1:
+            if frame_energy < self.energy_threshold or frame_energy < avg_energy * 0.1:
                 current_note = "pause"
-                print (f"Frame {frame_number}: Pause with energy {frame_energy} < {avg_energy} * 0.1")
+                print(f"Frame {frame_number}: Forced Pause with energy {frame_energy} < {self.energy_threshold}")
             else:
                 peaks, properties = scipy.signal.find_peaks(fft_magnitude, height=50000.00)
             
