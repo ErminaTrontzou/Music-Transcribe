@@ -86,7 +86,6 @@ class FFT:
 
         energy_list = []
         notes_info = []
-        current_played_note = PlayedNote(note=None, duration=0)
         notes = []
 
         for frame_number in range(total_frames):
@@ -117,7 +116,7 @@ class FFT:
                     fundamental_freq = xf[peaks[main_peak_index]]
                     fundamental_amplitude = properties['peak_heights'][main_peak_index]
 
-                    dynamic_threshold = 0.1 * fundamental_amplitude
+                    dynamic_threshold = 0.1* fundamental_amplitude
                     print(f"Frame {frame_number}: Fundamental frequency = {fundamental_freq}, Amplitude = {fundamental_amplitude}, Dynamic Threshold = {dynamic_threshold}")
 
                     close_harmonics = []
@@ -130,11 +129,11 @@ class FFT:
                         if fundamental_freq < potential_harmonic_freq:
                             deviation_from_harmony = potential_harmonic_freq / fundamental_freq - round(potential_harmonic_freq / fundamental_freq)
                             if abs(deviation_from_harmony) <= 0.02:
-                                theoretical_harmonic = round(potential_harmonic_freq / fundamental_freq) * fundamental_freq
+                                theoretical_harmonic  = round(potential_harmonic_freq / fundamental_freq) * fundamental_freq
                                 close_harmonics.append(theoretical_harmonic)
                         else:
                             deviation_from_harmony = fundamental_freq / potential_harmonic_freq - round(fundamental_freq / potential_harmonic_freq)
-                            if abs(deviation_from_harmony) <= 0.05:
+                            if abs(deviation_from_harmony) <= 0.05 and round(fundamental_freq/potential_harmonic_freq) <= 3:
                                 theoretical_harmonic = fundamental_freq / round(fundamental_freq / potential_harmonic_freq)
                                 close_harmonics.append(theoretical_harmonic)
 
