@@ -2,8 +2,9 @@ import numpy as np
 import scipy.io.wavfile as wavfile
 import scipy.signal
 import os
-from .lilypond_convert import LilyPondConverter
 import math
+from .lilypond_convert import LilyPondConverter
+import matplotlib.pyplot as plt
 
 class PlayedNote:
     def __init__(self, note, duration):
@@ -116,12 +117,15 @@ class FFT:
                     fundamental_freq = xf[peaks[main_peak_index]]
                     fundamental_amplitude = properties['peak_heights'][main_peak_index]
 
-                    dynamic_threshold = 0.1* fundamental_amplitude
+                    dynamic_threshold = 0.04 * fundamental_amplitude
                     print(f"Frame {frame_number}: Fundamental frequency = {fundamental_freq}, Amplitude = {fundamental_amplitude}, Dynamic Threshold = {dynamic_threshold}")
 
                     close_harmonics = []
+                    all_potential_harmonics = []  # Collect all potential harmonics for plotting
+
                     for peak in peaks:
                         potential_harmonic_freq = xf[peak]
+                        all_potential_harmonics.append(potential_harmonic_freq)
 
                         if fft_magnitude[peak] < dynamic_threshold:
                             continue
@@ -133,11 +137,32 @@ class FFT:
                                 close_harmonics.append(theoretical_harmonic)
                         else:
                             deviation_from_harmony = fundamental_freq / potential_harmonic_freq - round(fundamental_freq / potential_harmonic_freq)
-                            if abs(deviation_from_harmony) <= 0.05 and round(fundamental_freq/potential_harmonic_freq) <= 3:
+                            if abs(deviation_from_harmony) <= 0.04 and round(fundamental_freq/potential_harmonic_freq) <= 3:
                                 theoretical_harmonic = fundamental_freq / round(fundamental_freq / potential_harmonic_freq)
                                 close_harmonics.append(theoretical_harmonic)
 
                     print(f"After applying threshold, close harmonics for {fundamental_freq}: {close_harmonics}")
+
+                    # Find the closest indices and amplitudes for the harmonic frequencies
+                    def get_amplitude_for_frequency(freq, xf, fft_magnitude):
+                        idx = np.abs(xf - freq).argmin()
+                        return fft_magnitude[idx]
+
+                    # Plot the harmonics before and after filtering
+                    # plt.figure(figsize=(10, 5))
+                    # plt.plot(all_potential_harmonics, [get_amplitude_for_frequency(f, xf, fft_magnitude) for f in all_potential_harmonics], 'o', label='Potential Harmonics')
+                    # plt.plot(close_harmonics, [get_amplitude_for_frequency(f, xf, fft_magnitude) for f in close_harmonics], 'x', label='Filtered Harmonics')
+                    # plt.axvline(fundamental_freq, color='r', linestyle='--', label='Fundamental Frequency')
+                    
+                    # for harmonic in all_potential_harmonics:
+                    #     note_name = self.note_name(self.freq_to_number(harmonic))
+                    #     plt.text(harmonic, get_amplitude_for_frequency(harmonic, xf, fft_magnitude), note_name, fontsize=8, ha='right')
+                    
+                    # plt.xlabel('Frequency (Hz)')
+                    # plt.ylabel('Amplitude')
+                    # plt.title(f'Frame {frame_number}: Harmonics Analysis')
+                    # plt.legend()
+                    # plt.show()
 
                     base_frequency = self.gcd(close_harmonics + [fundamental_freq])
 
