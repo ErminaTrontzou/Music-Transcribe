@@ -6,31 +6,46 @@ class AboutWindow(ctk.CTkToplevel):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.geometry("500x400")
+        self.geometry("500x450")  # Adjusted size to make room for the close button
+        self.resizable(False, False)
         self.attributes('-topmost', True)
         self.title("About")
         self._setup_ui()
 
     def _setup_ui(self):
         """Set up the UI elements for the AboutWindow."""
+        
+        # Main content frame for better layout management
+        main_frame = ctk.CTkFrame(self)
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        heading_label = ctk.CTkLabel(
+            main_frame, 
+            text="About this application", 
+            font=("Helvetica", 28, "bold"),  # Heading type 2 with larger font and bold
+            anchor="center"
+        )
+        heading_label.pack()
+
+        # The informative text content
         about_text = (
-            "  Music Transcribe is a Python-based application developed as part of my bachelor's thesis. "
-            "With a user-friendly interface, it focuses on the precise recognition of musical notes, "
+            "Music Transcribe is a Python-based application developed as part of my bachelor's thesis. "
+            "With a user-friendly interface, it focuses on the recognition of musical notes, "
             "distinguishing pitch and duration.\n\n"
-            "  The application supports sourcing notes from either .mp3 "
-            "files or the sounds of various musical instruments directly from your mic. Users have the "
-            "flexibility to add new instruments too.\n\n"
-            "  Notably, Music Transcribe utilizes Fast Fourier Transform "
-            "(FFT) for the implementation of note recognition. It efficiently transcribes notes onto a "
-            "pentagram and allows for the export of these pentagram files, offering a versatile tool for "
-            "everyone, professional or not."
+            "The application supports sourcing notes from either .wav files or the sounds of various musical "
+            "instruments directly from your microphone.\n\n"
+            "Notably, Music Transcribe utilizes Fast Fourier Transform (FFT) for note recognition. It efficiently "
+            "transcribes notes onto a pentagram and allows for the export of these files, offering a versatile tool "
+            "for everyone, professional or not."
         )
 
-        about_textbox = ctk.CTkTextbox(self, wrap="word", font=("arial", 15))
-        about_textbox.insert("1.0", about_text)
-        about_textbox.pack(fill="both", expand=True, padx=10, pady=50)
+        # Create a label with more visually appealing text styling
+        about_label = ctk.CTkLabel(main_frame, text=about_text, justify="left", anchor="w", font=("Helvetica", 14), wraplength=460)
+        about_label.pack(fill="both", expand=True, padx=10, pady=20)
 
-
+        # Adding the close button at the bottom of the window
+        close_button = ctk.CTkButton(main_frame, text="Close", command=self.destroy, width=100)
+        close_button.pack(pady=10)
 class StartPage(ctk.CTkFrame):
     """The initial page with a welcome message and start button."""
 
@@ -45,10 +60,10 @@ class StartPage(ctk.CTkFrame):
         self.configure(height=350)
 
         # Start Prompt
-        ctk.CTkLabel(self, text="Click Start to begin", font=("Roboto", 30)).pack(side="top", fill="x", pady=(30, 10))
+        ctk.CTkLabel(self, text="Click Start to begin", font=("Roboto", 30)).pack(side="top", fill="x", pady=(110, 10))
 
         # Start Button
-        self._create_button("Start", self.controller.open_options_component).pack(side="top", padx=5)
+        self._create_button("Start", self.controller.open_options_component).pack(side="top", padx=5, pady=15)
 
     def _create_button(self, text, command):
         """Create a button with the provided text and command."""
@@ -145,11 +160,8 @@ class App(ctk.CTk):
         self.show_frame("InputOptions")
 
     def open_about(self):
-        """Open the AboutWindow, creating it if necessary."""
-        if self.about_window is None or not self.about_window.winfo_exists():
-            self.about_window = AboutWindow(self)
-        else:
-            self.about_window.focus()
+        """Open the AboutWindow directly when the About button is clicked."""
+        AboutWindow(self)
 
 
 if __name__ == "__main__":
