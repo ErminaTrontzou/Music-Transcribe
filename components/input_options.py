@@ -1,11 +1,8 @@
-import tkinter as tk
-import customtkinter
-from tkinter import filedialog, messagebox
-import os
+import customtkinter as ctk
 from .microphone_handler import MicrophoneHandler
 from .music_file_handler import MusicFileHandler
 
-class OptionsPageContent(customtkinter.CTkFrame):
+class OptionsPageContent(ctk.CTkFrame):
     """Frame containing options for either selecting a music file or recording with a microphone."""
 
     def __init__(self, master, controller, *args, **kwargs):
@@ -17,20 +14,20 @@ class OptionsPageContent(customtkinter.CTkFrame):
         self.music_file_handler = MusicFileHandler()
 
         # File-related variables
-        self.chosen_file = tk.StringVar()
+        self.chosen_file = ctk.StringVar()
         self.recorded_file_path = ""
 
         # Fonts
-        self.tab_font_style = customtkinter.CTkFont(size=25)
-        self.tab_content_style = customtkinter.CTkFont(size=20)
-        self.chosen_file_name_style = customtkinter.CTkFont(size=12, slant="italic")
+        self.tab_font_style = ctk.CTkFont(size=25)
+        self.tab_content_style = ctk.CTkFont(size=20)
+        self.chosen_file_name_style = ctk.CTkFont(size=12, slant="italic")
 
         # UI setup
         self._setup_ui()
 
     def _setup_ui(self):
         """Set up the UI elements for input options."""
-        self.options_container = customtkinter.CTkFrame(self)
+        self.options_container = ctk.CTkFrame(self)
         self.options_container.grid(row=0, column=0, pady=(0, 0))
 
         self._create_input_method_label()
@@ -44,15 +41,15 @@ class OptionsPageContent(customtkinter.CTkFrame):
 
     def _create_input_method_label(self):
         """Create and configure label for input method selection."""
-        self.frame_with_label = customtkinter.CTkFrame(self.options_container)
+        self.frame_with_label = ctk.CTkFrame(self.options_container)
         self.frame_with_label.grid(row=0, column=0, sticky="nsew")
 
-        self.choose_method_label = customtkinter.CTkLabel(self.frame_with_label, text="Choose an input method", font=("sans-serif", 30))
+        self.choose_method_label = ctk.CTkLabel(self.frame_with_label, text="Choose an input method", font=("sans-serif", 30))
         self.choose_method_label.grid(row=0, column=0, padx=150, pady=(0, 20), sticky="w")
 
     def _create_tabs(self):
         """Create the tab view for selecting input options."""
-        self.options_tab = customtkinter.CTkTabview(self.frame_with_label)
+        self.options_tab = ctk.CTkTabview(self.frame_with_label)
         self.options_tab.grid(row=1, column=0, sticky="nsew")
         self.options_tab.configure(width=600)
         self.options_tab._segmented_button.configure(font=self.tab_font_style)
@@ -63,45 +60,45 @@ class OptionsPageContent(customtkinter.CTkFrame):
 
     def _create_file_tab(self):
         """Create the MP3 file selection tab."""
-        self.file_tab = self.options_tab.add("MP3 File")
+        self.file_tab = self.options_tab.add("WAV File")
         
-        self.file_tab_label = customtkinter.CTkLabel(self.file_tab, text="Choose a file to process", font=self.tab_content_style)
+        self.file_tab_label = ctk.CTkLabel(self.file_tab, text="Choose a file to process", font=self.tab_content_style)
         self.file_tab_label.pack(fill="both", expand=True)
 
-        self.file_button = customtkinter.CTkButton(self.file_tab, text="Choose File", command=self.choose_file)
+        self.file_button = ctk.CTkButton(self.file_tab, text="Choose File", command=self.choose_file)
         self.file_button.pack(side="bottom", padx=10, pady=10)
 
-        self.chosen_file_name = customtkinter.CTkLabel(self.file_tab, textvariable=self.chosen_file, font=self.chosen_file_name_style, width=15, height=1)
+        self.chosen_file_name = ctk.CTkLabel(self.file_tab, textvariable=self.chosen_file, font=self.chosen_file_name_style, width=15, height=1)
         self.chosen_file_name.pack(fill="both", padx=10, pady=20)
 
-        self.process_button = customtkinter.CTkButton(self.file_tab, text="Start process", state="disabled", command=self.process_chosen_file)
+        self.process_button = ctk.CTkButton(self.file_tab, text="Start process", state="disabled", command=self.process_chosen_file)
         self.process_button.pack(side="bottom", padx=20, pady=10)
 
-        self.status_message_label = customtkinter.CTkLabel(self.file_tab, text="", font=self.tab_content_style)
+        self.status_message_label = ctk.CTkLabel(self.file_tab, text="", font=self.tab_content_style)
         self.status_message_label.pack(fill="both", expand=True)
 
     def _create_microphone_tab(self):
         """Create the microphone recording tab."""
         self.mic_tab = self.options_tab.add("Microphone")
         
-        self.mic_tab_label = customtkinter.CTkLabel(self.mic_tab, text="Click Start recording to start", font=self.tab_content_style)
+        self.mic_tab_label = ctk.CTkLabel(self.mic_tab, text="Click Start recording to start", font=self.tab_content_style)
         self.mic_tab_label.pack(fill="both", expand=True)
 
-        self.button_frame = customtkinter.CTkFrame(self.mic_tab)
+        self.button_frame = ctk.CTkFrame(self.mic_tab)
         self.button_frame.pack(side="top", pady=10)
 
-        self.mic_tab_start_button = customtkinter.CTkButton(self.button_frame, text="Start Recording", command=self.start_recording)
+        self.mic_tab_start_button = ctk.CTkButton(self.button_frame, text="Start Recording", command=self.start_recording)
         self.mic_tab_start_button.pack(side="left", padx=10)
 
-        self.mic_tab_stop_button = customtkinter.CTkButton(self.button_frame, text="Stop Recording and Save", command=self.stop_recording, state="disabled")
+        self.mic_tab_stop_button = ctk.CTkButton(self.button_frame, text="Stop Recording and Save", command=self.stop_recording, state="disabled")
         self.mic_tab_stop_button.pack(side="left", padx=10)
 
-        self.mic_tab_process_button = customtkinter.CTkButton(self.button_frame, text="Process File", command=self.process_recording, state="disabled")
+        self.mic_tab_process_button = ctk.CTkButton(self.button_frame, text="Process File", command=self.process_recording, state="disabled")
         self.mic_tab_process_button.pack(side="left", padx=10)
 
     def _create_return_button(self):
         """Create the Return button for going back to the StartPage."""
-        self.return_button = customtkinter.CTkButton(self, text="Return", command=self.return_to_start)
+        self.return_button = ctk.CTkButton(self, text="Return", command=self.return_to_start)
         self.return_button.grid(row=0, column=1, padx=(0, 100), pady=(450, 5), sticky="w")
 
     def return_to_start(self):

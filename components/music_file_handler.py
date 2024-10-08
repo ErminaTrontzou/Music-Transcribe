@@ -1,6 +1,4 @@
-import os
-from tkinter import filedialog
-from tkinter import messagebox
+from customtkinter  import filedialog
 from.fft import FFT
 
 class MusicFileHandler:

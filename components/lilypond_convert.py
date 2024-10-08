@@ -112,7 +112,7 @@ class LilyPondConverter:
         print(f"LilyPond file written to {file_name}")
     
     def run_lilypond(self, file_name):
-        lilypond_path = "C:/Users/7ermi/Desktop/ptixiakh/lilypond-2.24.2-mingw-x86_64/lilypond-2.24.2/bin/lilypond.exe"
+        lilypond_path = "lilypond_portable/bin/lilypond.exe"
         
         try:
             subprocess.run([lilypond_path, file_name], check=True)

@@ -47,13 +47,11 @@ class AboutWindow(ctk.CTkToplevel):
         close_button = ctk.CTkButton(main_frame, text="Close", command=self.destroy, width=100)
         close_button.pack(pady=10)
 class StartPage(ctk.CTkFrame):
-    """The initial page with a welcome message and start button."""
-
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
         self._setup_ui()
-
+        
     def _setup_ui(self):
         """Set up the UI elements for the StartPage."""
         self.pack_propagate(False)  # Prevent frame from auto-scaling
@@ -151,12 +149,10 @@ class App(ctk.CTk):
         ctk.CTkLabel(footer_frame, text="Copyright: Ermina Trontzou 2023").pack(side="top", pady=5)
 
     def show_frame(self, page_name):
-        """Show the specified frame by name."""
         frame = self.frames[page_name]
         frame.tkraise()
 
     def open_options_component(self):
-        """Show the InputOptions page."""
         self.show_frame("InputOptions")
 
     def open_about(self):

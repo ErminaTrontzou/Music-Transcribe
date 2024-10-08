@@ -1,9 +1,8 @@
 import os
-from tkinter import messagebox, filedialog
+from CTkMessagebox import CTkMessagebox
+from customtkinter  import filedialog
 from .recorder import Recorder
 from .fft import FFT
-import numpy as np
-from scipy.io.wavfile import read
 
 class MicrophoneHandler:
     def __init__(self):
@@ -14,7 +13,7 @@ class MicrophoneHandler:
 
     def start_recording(self):
         if self.running is not None:
-            messagebox.showinfo("Error", "Already recording.")
+            CTkMessagebox.showinfo("Error", "Already recording.")
         else:
             self.running = self.rec.open('instrument_recording.wav', 'wb')
             self.running.start_recording()
@@ -32,9 +31,11 @@ class MicrophoneHandler:
                                                      title="Save the recording as")
             if save_path:
                 if os.path.exists(save_path):
-                    overwrite = messagebox.askyesno("File exists", "File already exists. Do you want to overwrite it?")
-                    if not overwrite:
-                        messagebox.showinfo("Info", "Recording not saved.")
+                    msg = CTkMessagebox(title="Overwrite?", message="File already exists. Do you want to overwrite it?",
+                        icon="question", option_1="No", option_2="Yes")
+                    overwrite = msg.get()
+                    if overwrite=="No":
+                        CTkMessagebox(title="Error", message="The recording is not saved.", icon="cancel")  
                         return
                     else:
                         os.remove(save_path)
@@ -42,13 +43,13 @@ class MicrophoneHandler:
                 self.recorded_file_path = save_path
                 print(f"Recording saved to: {self.recorded_file_path}")
             else:
-                messagebox.showinfo("Info", "Recording not saved.")
+                CTkMessagebox(title="Error", message="The recording is not saved.", icon="cancel")  
         else:
-            messagebox.showinfo("Error", "Not recording.")
+            CTkMessagebox(title="Error", message="You are not recording.", icon="cancel")  
 
     def process_recording(self):
         if self.recorded_file_path and os.path.exists(self.recorded_file_path):
             self.fft.process_audio_file(self.recorded_file_path)
             return True
-        messagebox.showinfo("Error", "No recording found to process.")
+        CTkMessagebox(title="Error", message="No recording found to process.", icon="cancel")
         return False

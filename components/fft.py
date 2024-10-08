@@ -4,7 +4,6 @@ import scipy.signal
 import os
 import math
 from .lilypond_convert import LilyPondConverter
-import matplotlib.pyplot as plt
 
 class PlayedNote:
     def __init__(self, note, duration):
@@ -25,9 +24,6 @@ class FFT:
 
     def freq_to_number(self, f):
         return 12*np.log2(f/27.5) + 9
-    
-    def number_to_freq(self, n):
-        return 27.5 * 2**((n-9)/12)
     
     def note_name(self, n):
         n = round(n)
@@ -62,11 +58,15 @@ class FFT:
         return gcd_freq / 1e6
   
     def high_pass_filter(self, audio, fs):
-        sos = scipy.signal.butter(N=self.filter_order, Wn=self.cutoff_freq, fs=fs, btype='highpass', analog=False, output='sos')
+        sos = scipy.signal.butter(N=self.filter_order, 
+                                  Wn=self.cutoff_freq, 
+                                  fs=fs, 
+                                  btype='highpass', 
+                                  analog=False, 
+                                  output='sos')
         return scipy.signal.sosfiltfilt(sos=sos, x=audio)
 
     def process_audio_file(self, file_path):
-        assert self.gcd([292.0, 584.0, 876.0]) == 292.0, "Test Case 2 Failed"
 
         fs, data = wavfile.read(file_path)
     
@@ -75,14 +75,14 @@ class FFT:
         else:
             audio = data.T[0]
 
-        # Apply high-pass filter
+        #Apply high-pass filter
         audio = self.high_pass_filter(audio, fs)
         
         self.fft_window_size = int(fs * self.fft_window_seconds)
         total_frames = math.ceil(len(audio) / self.fft_window_size)
-        print(f"FFT window size of {self.fft_window_seconds} sec leads to FFT window size of {self.fft_window_size} samples for {total_frames} frames in the file")
 
-        window = 0.5 * (1 - np.cos(np.linspace(0, 2 * np.pi, self.fft_window_size, False)))
+        window = np.hamming(self.fft_window_size)        
+
         xf = np.fft.rfftfreq(self.fft_window_size, 1 / fs)
 
         energy_list = []
@@ -141,28 +141,7 @@ class FFT:
                                 theoretical_harmonic = fundamental_freq / round(fundamental_freq / potential_harmonic_freq)
                                 close_harmonics.append(theoretical_harmonic)
 
-                    print(f"After applying threshold, close harmonics for {fundamental_freq}: {close_harmonics}")
-
-                    # Find the closest indices and amplitudes for the harmonic frequencies
-                    def get_amplitude_for_frequency(freq, xf, fft_magnitude):
-                        idx = np.abs(xf - freq).argmin()
-                        return fft_magnitude[idx]
-
-                    # Plot the harmonics before and after filtering
-                    # plt.figure(figsize=(10, 5))
-                    # plt.plot(all_potential_harmonics, [get_amplitude_for_frequency(f, xf, fft_magnitude) for f in all_potential_harmonics], 'o', label='Potential Harmonics')
-                    # plt.plot(close_harmonics, [get_amplitude_for_frequency(f, xf, fft_magnitude) for f in close_harmonics], 'x', label='Filtered Harmonics')
-                    # plt.axvline(fundamental_freq, color='r', linestyle='--', label='Fundamental Frequency')
-                    
-                    # for harmonic in all_potential_harmonics:
-                    #     note_name = self.note_name(self.freq_to_number(harmonic))
-                    #     plt.text(harmonic, get_amplitude_for_frequency(harmonic, xf, fft_magnitude), note_name, fontsize=8, ha='right')
-                    
-                    # plt.xlabel('Frequency (Hz)')
-                    # plt.ylabel('Amplitude')
-                    # plt.title(f'Frame {frame_number}: Harmonics Analysis')
-                    # plt.legend()
-                    # plt.show()
+                    print(f"After applying threshold, close harmonics for {fundamental_freq}: {close_harmonics}")                
 
                     base_frequency = self.gcd(close_harmonics + [fundamental_freq])
 
