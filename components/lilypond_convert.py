@@ -3,26 +3,8 @@ import subprocess
 class LilyPondConverter:
     def __init__(self, notes_info):
         self.notes_info = notes_info
-        self.note_to_lilypond_pitch = self.generate_note_to_lilypond_pitch()
         self.bass_notes = ''
         self.treble_notes = ''
-    
-    def generate_note_to_lilypond_pitch(self):
-        notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-        suffixes = [",,,", ",,", ",", "", "'", "''", "'''", "''''"]
-        note_to_lilypond_pitch = {}
-
-        for octave in range(1, 8):  # generating for octaves 1 to 7
-            for note in notes:
-                lilypond_suffix = suffixes[octave - 1]
-                if '#' in note:
-                    lp_note = note.lower().replace('#', 'is') + lilypond_suffix
-                else:
-                    lp_note = note.lower() + lilypond_suffix
-                note_to_lilypond_pitch[f"{note}{octave}"] = lp_note
-
-        note_to_lilypond_pitch['pause'] = 'r'
-        return note_to_lilypond_pitch
     
     def note_to_lilypond_note(self, note, base_octave = 3):
         note_octave = int(note[-1])

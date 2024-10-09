@@ -168,4 +168,4 @@ class FFT:
         converter = LilyPondConverter(notes_info)
         lilypond_file_name = os.path.splitext(file_path)[0] + ".ly"
         converter.write_to_file(lilypond_file_name)
-        converter.run_lilypond(lilypond_file_name)
+        converter.run_lilypond(lilypond_file_name)  
