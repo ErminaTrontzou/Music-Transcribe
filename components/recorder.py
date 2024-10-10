@@ -54,6 +54,20 @@ class RecordingFile(object):
         self.p.terminate()
         return self.fname
 
+    def apply_auto_amplification(audio):
+        print(f"Audio Min: {audio.min()}, Max: {audio.max()}")
+        print(f"Ideal Audio Min: {(-32767/audio.min())*audio.min()}, Ideal Audio Max: {+32767/audio.max()}")
+        if(np.abs(audio.min())>np.abs(audio.max())):
+            audio = (audio/audio.min())*32767
+        else:
+            audio = (audio/audio.max())*32767
+        
+        print(f"Audiooooo {audio}")
+
+        # print(audio)
+        # for i in range(1, len(audio)):
+        #     print(f" {audio[i]}")
+
     #Returns a callback function that writes the input data to a wave file.
     def get_callback(self):
         def callback(in_data, frame_count, time_info, status):
